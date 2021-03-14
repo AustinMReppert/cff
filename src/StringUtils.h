@@ -19,4 +19,4 @@ namespace CFF {
   bool isAlphanumeric(UChar32 cp);
 }
 
-#endif //CFF_STRINGUTILS_H
+#endif // CFF_STRINGUTILS_H

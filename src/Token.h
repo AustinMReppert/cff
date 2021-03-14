@@ -24,7 +24,10 @@ namespace CFF {
     SLASH,
     SLASH_EQUALS,
     PERIOD,
-    IDENTIFIER
+    IDENTIFIER,
+    LEFT_PARENTHESIS,
+    RIGHT_PARENTHESIS,
+    END_OF_FILE
   };
 
   static std::string toString(const TokenType token) {
@@ -59,6 +62,12 @@ namespace CFF {
         return std::string(".");
       case TokenType::IDENTIFIER:
         return std::string("IDENTIFIER");
+      case TokenType::LEFT_PARENTHESIS:
+        return std::string("(");
+      case TokenType::RIGHT_PARENTHESIS:
+        return std::string(")");
+      case TokenType::END_OF_FILE:
+        return std::string("EOF");
     }
     return std::string("unknown");
   }
@@ -80,4 +89,4 @@ namespace CFF {
 }
 
 
-#endif //CFF_TOKEN_H
+#endif // CFF_TOKEN_H

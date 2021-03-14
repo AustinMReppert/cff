@@ -1,5 +1,6 @@
 #include "FileUtils.h"
 #include "Lexer.h"
+#include "Parser.h"
 
 #include <unicode/locid.h>
 #include <unicode/brkiter.h>
@@ -14,10 +15,12 @@ int main() {
   const auto tokens = CFF::Lexer::lex(main);
 
   std::cout << "Tokens:" << std::endl;
+
   std::size_t i = 0;
   for(const auto& token : tokens) {
     std::cout << "\t" << i++ << ": " << token.getName() << " raw token: " << token.raw << std::endl;
   }
+  CFF::Parser::parse(tokens);
 
   return 0;
 }

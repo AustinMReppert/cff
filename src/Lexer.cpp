@@ -128,11 +128,16 @@ std::vector<CFF::Token> CFF::Lexer::lex(const icu::UnicodeString& lexemes) {
         }
       }
       tokens.emplace_back(TokenType::IDENTIFIER, icu::UnicodeString(lexemes, start, itr.getIndex() - start));
+    } else if(lexeme == U'(') {
+      tokens.emplace_back(TokenType::LEFT_PARENTHESIS, icu::UnicodeString(lexemes, start, itr.getIndex() - start));
+    } else if(lexeme == U')') {
+      tokens.emplace_back(TokenType::RIGHT_PARENTHESIS, icu::UnicodeString(lexemes, start, itr.getIndex() - start));
     } else if(CFF::isWhitespace(lexeme)) {
     } else {
       std::cerr << icu::UnicodeString(lexemes) << std::endl;
       throw std::runtime_error("unknown lexeme in file");
     }
   }
+  tokens.emplace_back(TokenType::END_OF_FILE, nullptr);
   return tokens;
 }

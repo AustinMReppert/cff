@@ -20,4 +20,4 @@ namespace CFF {
 
 }
 
-#endif //CFF_FILEUTILS_H
+#endif // CFF_FILEUTILS_H

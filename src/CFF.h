@@ -11,4 +11,4 @@ namespace CFF {
 
 }
 
-#endif //CFF_CFF_H
+#endif // CFF_CFF_H
