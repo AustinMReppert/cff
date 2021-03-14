@@ -5,19 +5,28 @@
 
 #include <vector>
 #include <set>
+#include <memory>
+
+#include "AST.h"
+#include "Expression.h"
 
 namespace CFF {
 
   class Parser {
 
+  private:
+    std::vector<std::shared_ptr<Token>> tokens;
+    std::size_t cur;
   public:
-    static void parse(const std::vector<Token>& tokens);
-    static void expression(const std::vector<Token>& tokens, size_t& cur);
-    static void term(const std::vector<Token>& tokens, size_t& cur);
-    static void error(const std::vector<Token>& tokens, size_t& cur);
-    static void advance(const std::vector<Token>& tokens, size_t& cur);
-    static Token peek(const std::vector<Token>& tokens, size_t& cur);
-    static bool matches(const std::vector<Token>& tokens, size_t cur, const std::set<TokenType>& tokenTypes);
+    Parser(std::vector<std::shared_ptr<Token>> tokens);
+    CFF::AST parse();
+    std::shared_ptr<CFF::Expression> expression();
+    std::shared_ptr<CFF::Expression> term();
+    std::shared_ptr<CFF::Expression> factor();
+    void error();
+    void advance();
+    std::shared_ptr<CFF::Token> peek();
+    bool matches(size_t index, const std::set<TokenType>& tokenTypes);
 
   };
 

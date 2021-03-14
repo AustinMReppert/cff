@@ -1,7 +1,7 @@
 #ifndef CFF_TOKEN_H
 #define CFF_TOKEN_H
 
-#include "StringUtils.h"
+#include "utils/StringUtils.h"
 
 #include <unicode/unistr.h>
 

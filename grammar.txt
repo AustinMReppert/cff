@@ -1,0 +1,7 @@
+START -> EXPRESSION
+EXPRESSION -> TERM + EXPRESSION
+TERM -> FACTOR "*" TERM
+      | FACTOR "/" TERM
+FACTOR -> "("EXPRESSION")"
+        | tk_identifier
+        | tk_num

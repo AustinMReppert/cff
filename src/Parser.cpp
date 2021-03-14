@@ -1,74 +1,89 @@
 #include "Parser.h"
+#include "AST.h"
+#include "Expression.h"
+#include "BinaryExpression.h"
+#include "NumLiteral.h"
 
 #include <unicode/ustream.h>
 
 #include <algorithm>
 #include <functional>
+#include <utility>
 
-void CFF::Parser::parse(const std::vector<Token>& tokens) {
-  std::size_t i = 0;
-  while(i < tokens.size() - 1) {
-    std::cout << "Parsing Token: " << tokens[i].raw << std::endl;
-    expression(tokens, i);
+CFF::AST CFF::Parser::parse() {
+  AST result;
+
+  while(cur < tokens.size() - 1) {
+    std::cout << "Parsing Token: " << tokens[cur]->raw << std::endl;
+    result.getChildren()->emplace_back(expression());
   }
+  return result;
 }
 
-void CFF::Parser::expression(const std::vector<Token>& tokens, size_t& cur) {
-  if(matches(tokens, cur, {TokenType::LEFT_PARENTHESIS})) {
-    std::cout << "a" << std::endl;
-    advance(tokens, cur);
-    expression(tokens, cur);
-    if(matches(tokens, cur, {TokenType::RIGHT_PARENTHESIS}))
-      advance(tokens, cur);
-    else
-      error(tokens, cur);
-  } else if (matches(tokens, cur, {TokenType::MINUS})) {
-    std::cout << "b" << std::endl;
-    advance(tokens, cur);
-    expression(tokens, cur);
-  } else if (matches(tokens, cur, {TokenType::NUM})) {
-    std::cout << "c" << std::endl;
-    term(tokens, cur);
+std::shared_ptr<CFF::Expression> CFF::Parser::expression() {
+  auto left = term();
+  if(matches(cur, {TokenType::PLUS, TokenType::MINUS})) {
+    auto op = tokens[cur];
+    advance();
+    auto right = expression();
+    return std::make_shared<BinaryExpression>(op, left, right);
   } else {
-    std::cout << "d" << std::endl;
-    expression(tokens, cur);
-    if(matches(tokens, cur, {TokenType::PLUS, TokenType::MINUS}))
-      advance(tokens, cur);
-    else
-      error(tokens, cur);
-    expression(tokens, cur);
+    return left;
   }
 }
 
-void CFF::Parser::term(const std::vector<Token>& tokens, size_t& cur) {
-  if(matches(tokens, cur, {TokenType::NUM}) && matches(tokens, cur + 1, {TokenType::ASTERISK, TokenType ::SLASH})) {
-    advance(tokens, cur);
-    advance(tokens, cur);
-    term(tokens, cur);
-  } else if(matches(tokens, cur, {TokenType::NUM})) {
-    advance(tokens, cur);
+std::shared_ptr<CFF::Expression> CFF::Parser::term() {
+  auto left = factor();
+  if(matches(cur, {TokenType::ASTERISK, TokenType::SLASH})) {
+    auto op = tokens[cur];
+    advance();
+    auto right = term();
+    return std::make_shared<BinaryExpression>(op, left, right);
   } else {
-    error(tokens, cur);
+    return left;
   }
 }
 
-void CFF::Parser::error(const std::vector<Token>& tokens, size_t& cur) {
-  std::cout << "error parsing: " << ((cur < tokens.size()) ? tokens[cur].getName() : "EOF") << " at " << cur
+std::shared_ptr<CFF::Expression> CFF::Parser::factor() {
+  if(matches(cur, {TokenType::LEFT_PARENTHESIS})) {
+    advance();
+    auto expr = expression();
+    if(matches(cur, {TokenType::RIGHT_PARENTHESIS})) {
+      advance();
+      return expr;
+    }
+    else error();
+  } else if(matches(cur, {TokenType::NUM})) {
+    std::shared_ptr<Token> literal = tokens[cur];
+    advance();
+    return std::make_shared<NumLiteral>(literal, 4.0);
+  } else {
+    error();
+  }
+  return nullptr;
+}
+
+void CFF::Parser::error() {
+  std::cout << "error parsing: " << ((cur < tokens.size()) ? tokens[cur]->getName() : "EOF") << " at " << cur
             << std::endl;
   throw std::runtime_error("invalid expression");
 }
 
-void CFF::Parser::advance(const std::vector<Token>& tokens, size_t& cur) {
+void CFF::Parser::advance() {
   ++cur;
   if(cur >= tokens.size())
-    error(tokens, cur);
+    error();
 }
 
-CFF::Token CFF::Parser::peek(const std::vector<Token>& tokens, size_t& cur) {
+std::shared_ptr<CFF::Token> CFF::Parser::peek() {
   return tokens[cur + 1];
 }
 
-bool CFF::Parser::matches(const std::vector<Token>& tokens, size_t cur, const std::set<TokenType>& tokenTypes) {
-  return std::ranges::any_of(tokenTypes, [tokens, cur](TokenType f) { return f == tokens[cur].type; });
+bool CFF::Parser::matches(size_t index, const std::set<TokenType>& tokenTypes) {
+  return std::ranges::any_of(tokenTypes, [this, index](TokenType f) { return f == this->tokens[index]->type; });
 }
 
+CFF::Parser::Parser(std::vector<std::shared_ptr<Token>> tokens) {
+  this->tokens = std::move(tokens);
+  cur = 0;
+}

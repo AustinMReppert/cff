@@ -2,7 +2,7 @@
 #define CFF_LEXER_H
 
 #include "Token.h"
-#include "FileUtils.h"
+#include "utils/FileUtils.h"
 
 #include <unicode/unistr.h>
 
@@ -14,7 +14,7 @@ namespace CFF {
   class Lexer {
 
   public:
-    static std::vector<Token> lex(const icu::UnicodeString& lexemes);
+    static std::vector<std::shared_ptr<CFF::Token>> lex(const icu::UnicodeString& lexemes);
 
   };
 
