@@ -1,19 +1,16 @@
 #include "Lexer.h"
 
-#include <unicode/schriter.h>
 #include <unicode/ustream.h>
 
 #include <vector>
 
-std::vector<std::shared_ptr<CFF::Token>> CFF::Lexer::lex(const icu::UnicodeString& lexemes) {
+std::vector<std::shared_ptr<CFF::Token>> CFF::Lexer::lex() {
   std::vector<std::shared_ptr<CFF::Token>> tokens;
-  std::size_t line = 1;
-  std::size_t column = 0;
-
-  icu::StringCharacterIterator itr = lexemes;
+  line = 1;
+  column = 0;
 
   while(itr.hasNext()) {
-    int32_t start = itr.getIndex();
+    start = itr.getIndex();
     UChar32 lexeme = itr.next32PostInc();
 
     if(CFF::isNewline(lexeme)) {
@@ -37,62 +34,62 @@ std::vector<std::shared_ptr<CFF::Token>> CFF::Lexer::lex(const icu::UnicodeStrin
           }
         } else {
           itr.previous32();
-          tokens.emplace_back(std::make_shared<Token>(TokenType::SLASH, icu::UnicodeString(lexemes, start, itr.getIndex() - start)));
+          appendToken(TokenType::SLASH, tokens);
         }
       } else {
-        tokens.emplace_back(std::make_shared<Token>(TokenType::SLASH, icu::UnicodeString(lexemes, start, itr.getIndex() - start)));
+        appendToken(TokenType::SLASH, tokens);
       }
     } else if(lexeme == U'+') {
       if(itr.hasNext()) {
         lexeme = itr.next32PostInc();
         if(lexeme == U'=') {
-          tokens.emplace_back(std::make_shared<Token>(TokenType::PLUS_EQUALS, icu::UnicodeString(lexemes, start, itr.getIndex() - start)));
+          appendToken(TokenType::PLUS_EQUALS, tokens);
         } else if(lexeme == U'+') {
-          tokens.emplace_back(std::make_shared<Token>(TokenType::PLUS_PLUS, icu::UnicodeString(lexemes, start, itr.getIndex() - start)));
+          appendToken(TokenType::PLUS_PLUS, tokens);
         } else {
           itr.previous32();
-          tokens.emplace_back(std::make_shared<Token>(TokenType::PLUS, icu::UnicodeString(lexemes, start, itr.getIndex() - start)));
+          appendToken(TokenType::PLUS, tokens);
         }
       } else {
-        tokens.emplace_back(std::make_shared<Token>(TokenType::PLUS, icu::UnicodeString(lexemes, start, itr.getIndex() - start)));
+        appendToken(TokenType::PLUS, tokens);
       }
     } else if(lexeme == U'-') {
       if(itr.hasNext()) {
         lexeme = itr.next32PostInc();
         if(lexeme == U'=') {
-          tokens.emplace_back(std::make_shared<Token>(TokenType::MINUS_EQUALS, icu::UnicodeString(lexemes, start, itr.getIndex() - start)));
+          appendToken(TokenType::MINUS_EQUALS, tokens);
         } else if(lexeme == U'-') {
-          tokens.emplace_back(std::make_shared<Token>(TokenType::MINUS_MINUS, icu::UnicodeString(lexemes, start, itr.getIndex() - start)));
+          appendToken(TokenType::MINUS_MINUS, tokens);
         } else {
           itr.previous32();
-          tokens.emplace_back(std::make_shared<Token>(TokenType::MINUS, icu::UnicodeString(lexemes, start, itr.getIndex() - start)));
+          appendToken(TokenType::MINUS, tokens);
         }
       } else {
-        tokens.emplace_back(std::make_shared<Token>(TokenType::MINUS, icu::UnicodeString(lexemes, start, itr.getIndex() - start)));
+        appendToken(TokenType::MINUS, tokens);
       }
     } else if(lexeme == U'*') {
       if(itr.hasNext()) {
         lexeme = itr.next32PostInc();
         if(lexeme == U'=') {
-          tokens.emplace_back(std::make_shared<Token>(TokenType::ASTERISK_EQUALS, icu::UnicodeString(lexemes, start, itr.getIndex() - start)));
+          appendToken(TokenType::ASTERISK_EQUALS, tokens);
         } else {
           itr.previous32();
-          tokens.emplace_back(std::make_shared<Token>(TokenType::ASTERISK, icu::UnicodeString(lexemes, start, itr.getIndex() - start)));
+          appendToken(TokenType::ASTERISK, tokens);
         }
       } else {
-        tokens.emplace_back(std::make_shared<Token>(TokenType::ASTERISK, icu::UnicodeString(lexemes, start, itr.getIndex() - start)));
+        appendToken(TokenType::ASTERISK, tokens);
       }
     } else if(lexeme == U'=') {
       if(itr.hasNext()) {
         lexeme = itr.next32PostInc();
         if(lexeme == U'=') {
-          tokens.emplace_back(std::make_shared<Token>(TokenType::EQUALS_EQUALS, icu::UnicodeString(lexemes, start, itr.getIndex() - start)));
+          appendToken(TokenType::EQUALS_EQUALS, tokens);
         } else {
           itr.previous32();
-          tokens.emplace_back(std::make_shared<Token>(TokenType::EQUALS, icu::UnicodeString(lexemes, start, itr.getIndex() - start)));
+          appendToken(TokenType::EQUALS, tokens);
         }
       } else {
-        tokens.emplace_back(std::make_shared<Token>(TokenType::EQUALS, icu::UnicodeString(lexemes, start, itr.getIndex() - start)));
+        appendToken(TokenType::EQUALS, tokens);
       }
     } else if(CFF::isNumeric(lexeme)) {
       bool shouldExit = false;
@@ -118,7 +115,7 @@ std::vector<std::shared_ptr<CFF::Token>> CFF::Lexer::lex(const icu::UnicodeStrin
           shouldExit = true;
         }
       }
-      tokens.emplace_back(std::make_shared<Token>(TokenType::NUM, icu::UnicodeString(lexemes, start, itr.getIndex() - start)));
+      appendToken(TokenType::NUM, tokens);
     } else if(CFF::isAlphabetic(lexeme) || lexeme == U'_') {
       while(itr.hasNext()) {
         lexeme = itr.next32PostInc();
@@ -127,17 +124,27 @@ std::vector<std::shared_ptr<CFF::Token>> CFF::Lexer::lex(const icu::UnicodeStrin
           break;
         }
       }
-      tokens.emplace_back(std::make_shared<Token>(TokenType::IDENTIFIER, icu::UnicodeString(lexemes, start, itr.getIndex() - start)));
+      appendToken(TokenType::IDENTIFIER, tokens);
     } else if(lexeme == U'(') {
-      tokens.emplace_back(std::make_shared<Token>(TokenType::LEFT_PARENTHESIS, icu::UnicodeString(lexemes, start, itr.getIndex() - start)));
+      appendToken(TokenType::LEFT_PARENTHESIS, tokens);
     } else if(lexeme == U')') {
-      tokens.emplace_back(std::make_shared<Token>(TokenType::RIGHT_PARENTHESIS, icu::UnicodeString(lexemes, start, itr.getIndex() - start)));
+      appendToken(TokenType::RIGHT_PARENTHESIS, tokens);
     } else if(CFF::isWhitespace(lexeme)) {
     } else {
       std::cerr << icu::UnicodeString(lexemes) << std::endl;
       throw std::runtime_error("unknown lexeme in file");
     }
   }
-  tokens.emplace_back(std::make_shared<Token>(TokenType::END_OF_FILE, nullptr));
+  tokens.emplace_back(std::make_shared<CFF::Token>(TokenType::END_OF_FILE, icu::UnicodeString("")));
   return tokens;
+}
+
+
+void CFF::Lexer::appendToken(CFF::TokenType tokenType, std::vector<std::shared_ptr<CFF::Token>>& tokens) {
+  tokens.emplace_back(std::make_shared<CFF::Token>(tokenType, icu::UnicodeString(lexemes, start, itr.getIndex() - start)));
+}
+
+CFF::Lexer::Lexer(icu::UnicodeString lexemes) {
+  this->lexemes = lexemes;
+  itr = this->lexemes;
 }

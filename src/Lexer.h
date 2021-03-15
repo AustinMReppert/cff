@@ -8,14 +8,24 @@
 
 #include <string_view>
 #include <vector>
+#include <unicode/schriter.h>
 
 namespace CFF {
 
   class Lexer {
 
-  public:
-    static std::vector<std::shared_ptr<CFF::Token>> lex(const icu::UnicodeString& lexemes);
+  private:
+    icu::UnicodeString lexemes;
+    icu::StringCharacterIterator itr{icu::UnicodeString()};
+    std::size_t line{};
+    std::size_t column{};
+    std::size_t start{};
 
+    void appendToken(TokenType tokenType, std::vector<std::shared_ptr<CFF::Token>>& tokens);
+
+  public:
+    std::vector<std::shared_ptr<CFF::Token>> lex();
+    explicit Lexer(icu::UnicodeString lexemes);
   };
 
 }

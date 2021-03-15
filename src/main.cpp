@@ -14,18 +14,19 @@ int main() {
   const auto mainFile = fs::current_path().append("main.cff");
   const auto main = CFF::load(mainFile);
 
-  const auto tokens = CFF::Lexer::lex(main);
+  CFF::Lexer lexer(main);
+  const auto tokens = std::make_shared<std::vector<std::shared_ptr<CFF::Token>>>(lexer.lex());
 
   std::cout << "Tokens:" << std::endl;
-
   std::size_t tokenIndex = 0;
-  for(const auto& token : tokens) {
+  for(const auto& token : *tokens) {
     std::cout << "\t" << tokenIndex++ << ": " << token->getName() << " raw token: " << token->raw << std::endl;
   }
 
 
   CFF::Parser parser(tokens);
   CFF::AST ast = parser.parse();
+
   for(std::size_t i = 0; i < ast.getChildren()->size(); ++i) {
     std::shared_ptr<CFF::ASTNode> node = (*ast.getChildren())[i];
     if(CFF::BinaryExpression* a = dynamic_cast<CFF::BinaryExpression*>(node.get())) {

@@ -15,10 +15,10 @@ namespace CFF {
   class Parser {
 
   private:
-    std::vector<std::shared_ptr<Token>> tokens;
+    std::shared_ptr<std::vector<std::shared_ptr<Token>>> tokens;
     std::size_t cur;
   public:
-    Parser(std::vector<std::shared_ptr<Token>> tokens);
+    explicit Parser(std::shared_ptr<std::vector<std::shared_ptr<Token>>> tokens);
     CFF::AST parse();
     std::shared_ptr<CFF::Expression> expression();
     std::shared_ptr<CFF::Expression> term();
