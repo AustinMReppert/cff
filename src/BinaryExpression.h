@@ -1,24 +1,27 @@
 #ifndef CFF_BINARYEXPRESSION_H
 #define CFF_BINARYEXPRESSION_H
 
+#include "ASTNode.h"
+
 #include <memory>
-#include "Expression.h"
-#include "Token.h"
 
 namespace CFF {
 
-  class BinaryExpression : public Expression {
+  class BinaryExpression : public ASTNode {
   private:
     std::shared_ptr<Token> op;
-    std::shared_ptr<Expression> left;
-    std::shared_ptr<Expression> right;
+    std::shared_ptr<ASTNode> left;
+    std::shared_ptr<ASTNode> right;
 
   public:
-    BinaryExpression(std::shared_ptr<Token> op, std::shared_ptr<Expression> left, std::shared_ptr<Expression> right);
+    BinaryExpression(std::shared_ptr<Token> op, std::shared_ptr<ASTNode> left, std::shared_ptr<ASTNode> right);
 
-    const std::shared_ptr<Expression>& getLeft() const;
+    std::shared_ptr<ASTNode>& getLeft();
 
-    const std::shared_ptr<Expression>& getRight() const;
+    std::shared_ptr<ASTNode>& getRight();
+
+    void accept(CFF::ASTNodeVisitor& visitor) override;
+
   };
 
 }

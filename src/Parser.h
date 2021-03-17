@@ -2,27 +2,26 @@
 #define CFF_PARSER_H
 
 #include "Token.h"
+#include "ASTNode.h"
+#include "AST.h"
 
 #include <vector>
 #include <set>
 #include <memory>
-
-#include "AST.h"
-#include "Expression.h"
 
 namespace CFF {
 
   class Parser {
 
   private:
-    std::shared_ptr<std::vector<std::shared_ptr<Token>>> tokens;
+    std::vector<std::shared_ptr<Token>>* tokens;
     std::size_t cur;
   public:
-    explicit Parser(std::shared_ptr<std::vector<std::shared_ptr<Token>>> tokens);
+    explicit Parser(std::vector<std::shared_ptr<Token>>* tokens);
     CFF::AST parse();
-    std::shared_ptr<CFF::Expression> expression();
-    std::shared_ptr<CFF::Expression> term();
-    std::shared_ptr<CFF::Expression> factor();
+    std::shared_ptr<CFF::ASTNode> expression();
+    std::shared_ptr<CFF::ASTNode> term();
+    std::shared_ptr<CFF::ASTNode> factor();
     void error();
     void advance();
     std::shared_ptr<CFF::Token> peek();

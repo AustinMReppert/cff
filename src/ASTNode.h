@@ -1,8 +1,10 @@
 #ifndef CFF_ASTNODE_H
 #define CFF_ASTNODE_H
 
-#include <memory>
+#include "ASTNodeVisitor.h"
 #include "Token.h"
+
+#include <memory>
 
 namespace CFF {
 
@@ -10,9 +12,11 @@ namespace CFF {
   private:
     std::shared_ptr<Token> token;
   public:
-  public: ASTNode(std::shared_ptr<Token> token);
-    virtual ~ASTNode() = default;
+    ASTNode(std::shared_ptr<Token> token);
+
+    virtual void accept(CFF::ASTNodeVisitor& visitor) = 0;
     std::shared_ptr<Token> getToken();
+
   };
 
 }

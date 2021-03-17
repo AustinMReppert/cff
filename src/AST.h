@@ -14,7 +14,7 @@ namespace CFF {
   public:
     AST();
 
-    std::vector<std::shared_ptr<ASTNode>>* getChildren();
+    std::vector<std::shared_ptr<ASTNode>>& getChildren();
 
 
   };

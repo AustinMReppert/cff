@@ -2,6 +2,7 @@
 
 #include <unicode/ustream.h>
 
+#include <utility>
 #include <vector>
 
 std::vector<std::shared_ptr<CFF::Token>> CFF::Lexer::lex() {
@@ -119,7 +120,7 @@ std::vector<std::shared_ptr<CFF::Token>> CFF::Lexer::lex() {
     } else if(CFF::isAlphabetic(lexeme) || lexeme == U'_') {
       while(itr.hasNext()) {
         lexeme = itr.next32PostInc();
-        if(!(CFF::isAlphabetic(lexeme) || CFF::isNumeric(lexeme) || lexeme == '_')) {
+        if(!(CFF::isAlphabetic(lexeme) || CFF::isNumeric(lexeme) || lexeme == U'_')) {
           itr.previous32();
           break;
         }
@@ -145,6 +146,6 @@ void CFF::Lexer::appendToken(CFF::TokenType tokenType, std::vector<std::shared_p
 }
 
 CFF::Lexer::Lexer(icu::UnicodeString lexemes) {
-  this->lexemes = lexemes;
+  this->lexemes = std::move(lexemes);
   itr = this->lexemes;
 }
