@@ -12,11 +12,11 @@ auto CFF::getLength(std::ifstream& file) {
 icu::UnicodeString CFF::load(const fs::path& path) {
   std::ifstream file(path, std::ifstream::binary | std::ifstream::in);
   if(!file) {
-    throw std::runtime_error("File not found");
+    throw std::runtime_error("File not found: " + std::string(path));
   }
   const auto length = getLength(file);
   auto content = std::string(length.operator+(0), ' ');
   file.read(content.data(), length);
   file.close();
-  return icu::UnicodeString(content.c_str(), "utf-8");
+  return {content.c_str(), "utf-8"};
 }
