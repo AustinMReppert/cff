@@ -22,4 +22,4 @@ namespace CFF {
 }
 
 
-#endif //CFF_ASTNODE_H
+#endif

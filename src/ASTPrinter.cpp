@@ -54,9 +54,13 @@ void CFF::ASTPrinter::visitAssignment(CFF::Assignment& node) {
   std::cout << "Assignment:" << std::endl;
 
   ++indentLevel;
-  std::cout << indent() << "\tName: " << node.name << std::endl;
-  std::cout << indent() << "\tValue: " << std::endl;
+  std::cout << indent() << "Name: " << node.name << std::endl;
+  std::cout << indent() << "Value: " << std::endl;
+
+  ++indentLevel;
   node.value->accept(*this);
+  --indentLevel;
+
   --indentLevel;
 }
 
