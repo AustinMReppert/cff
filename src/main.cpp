@@ -4,6 +4,9 @@
 #include "Parser.h"
 #include "ASTPrinter.h"
 
+#include "ASTNode.h"
+#include "StatementList.h"
+
 #include <unicode/locid.h>
 #include <unicode/brkiter.h>
 #include <unicode/ustream.h>
@@ -24,7 +27,10 @@ int main() {
   }
 
   CFF::Parser parser(&tokens);
-  CFF::AST ast = parser.parse();
+
+  CFF::AST ast;
+  auto mainFileNodes = parser.parse();
+  ast.addChild(dynamic_pointer_cast<CFF::ASTNode>(mainFileNodes));
 
   CFF::ASTPrinter astPrinter;
   astPrinter.print(ast);

@@ -10,6 +10,7 @@
 namespace CFF {
 
   enum class TokenType {
+    LET,
     EQUALS,
     EQUALS_EQUALS,
     PLUS,
@@ -27,11 +28,14 @@ namespace CFF {
     IDENTIFIER,
     LEFT_PARENTHESIS,
     RIGHT_PARENTHESIS,
-    END_OF_FILE
+    END_OF_FILE,
+    SEMICOLON
   };
 
   static std::string toString(const TokenType token) {
     switch(token) {
+      case TokenType::LET:
+        return std::string("let");
       case TokenType::EQUALS:
         return std::string("=");
       case TokenType::EQUALS_EQUALS:
@@ -68,6 +72,8 @@ namespace CFF {
         return std::string(")");
       case TokenType::END_OF_FILE:
         return std::string("EOF");
+      case TokenType::SEMICOLON:
+          return std::string(";");
     }
     return std::string("unknown");
   }

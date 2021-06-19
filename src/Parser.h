@@ -18,7 +18,8 @@ namespace CFF {
     std::size_t cur;
   public:
     explicit Parser(std::vector<std::shared_ptr<Token>>* tokens);
-    CFF::AST parse();
+    std::shared_ptr<CFF::StatementList> parse();
+    std::shared_ptr<CFF::Statement> declaration();
     std::shared_ptr<CFF::ASTNode> expression();
     std::shared_ptr<CFF::ASTNode> term();
     std::shared_ptr<CFF::ASTNode> factor();
@@ -26,6 +27,7 @@ namespace CFF {
     void advance();
     std::shared_ptr<CFF::Token> peek();
     bool matches(size_t index, const std::set<TokenType>& tokenTypes);
+    bool matches(const std::set<TokenType>& tokenTypes);
 
   };
 
